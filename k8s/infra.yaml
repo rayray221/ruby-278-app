@@ -71,6 +71,8 @@ spec:
             - --character-set-server=utf8mb4
             - --innodb-buffer-pool-size=64M
             - --performance-schema=OFF
+            # Trilogy cannot do caching_sha2_password over plain TCP.
+            - --default-authentication-plugin=mysql_native_password
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: otel

@@ -2,7 +2,7 @@
 
 A Kubernetes demo app that exercises the OpenTelemetry-supported Ruby libraries on **Ruby 2.7.8**. It does **not** bundle any `opentelemetry-*` gems. Instrument it at runtime with Odigos (or another auto-instrumentation agent).
 
-The goal is maximum library coverage with as few root traces as possible. One Rake Job fans out into **10 transactions**.
+The goal is maximum library coverage with as few root traces as possible. One Rake Job fans out across **10 processes**. With child-style context propagation those should appear as **one connected trace**, not 10 roots.
 
 ## What it covers
 
@@ -51,9 +51,9 @@ flowchart LR
 
 ## Transactions
 
-One Rake Job produces **10 root traces**. `curl` to Rails `/exercise` skips Rake and yields **9**.
+One Rake Job should produce **one trace** whose root is T1. `curl` to Rails `/exercise` skips Rake, so that trace’s root is T2. T3–T10 are server/consumer **spans in other processes**, linked as children of T2 when the agent injects/extracts W3C context (`propagation_style: :child`). They are separate traces only if the agent does not continue the parent.
 
-| ID | Root | Process | Libraries |
+| ID | Span | Process | Libraries |
 | --- | --- | --- | --- |
 | T1 | Rake `otel:exercise` | exercise Job | `rake`, `net/http` (client) |
 | T2 | Rails `GET /exercise` | `rails` | Rails/Rack stack, GraphQL, AMS, all datastore/HTTP/AWS clients, job and messaging **produce/enqueue** |
@@ -66,7 +66,7 @@ One Rake Job produces **10 root traces**. `curl` to Rails `/exercise` skips Rake
 | T9 | ruby-kafka consume | `ruby-kafka-consumer` | `ruby-kafka` (consumer) |
 | T10 | Racecar consume | `racecar` | `racecar`, `rdkafka` (consumer) |
 
-T2 is the orchestrator. Client libraries share that request. Separate roots exist only where a real server/consumer span and cross-process context propagation are required.
+T2 is the orchestrator. Client libraries share that request. T3–T10 exist because a real server/consumer span and cross-process propagation are required; they should still sit under T2 in the same trace.
 
 ## Prerequisites
 
@@ -285,7 +285,7 @@ Config lives in `k8s/configmap.yaml` (`DATABASE_URL`, `REDIS_URL`, `KAFKA_BROKER
 ## Notes
 
 - **Match the node architecture.** `make build` uses the host CPU. For amd64 clusters from an arm64 machine, pass `PLATFORM=linux/amd64`. An arm64 image on amd64 nodes fails with `exec ./docker-entrypoint.sh: exec format error`.
-- **Ruby 2.7 pins:** Racecar 2.11+ needs Ruby 3, so the lock uses Racecar 2.10 and rdkafka 0.13. Redis stays on 4.8 (Resque) with a separate `redis-client` gem (Sidekiq 7).
+- **Ruby 2.7 pins:** Racecar 2.11+ needs Ruby 3, so the lock uses Racecar 2.10 and rdkafka 0.13. Redis stays on 4.8 (Resque) with a separate `redis-client` gem (Sidekiq 7). GraphQL stays on `~> 2.0.19` so the last Ruby 2.7 OpenTelemetry GraphQL instrumentation can install.
 - **No OTEL in the image.** Auto-instrumentation injects tracers when the process starts. Separate Deployments exist so each Ruby process can be wrapped independently.
 - **Kind memory.** If nodes pressure, scale down unused demo workloads. LocalStack and Redpanda are the heaviest infra pods.
-- **Re-running.** `make exercise` can be run as often as you need; each run should produce a new set of the same 10 trace shapes.
+- **Re-running.** `make exercise` can be run as often as you need; each run should produce a new copy of the same connected trace (T1–T10).

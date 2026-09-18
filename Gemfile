@@ -12,7 +12,9 @@ gem "sinatra", "~> 3.2", require: false
 
 # Rails stack coverage
 gem "active_model_serializers", "~> 0.10.14"
-gem "graphql", "~> 2.3.0"
+# Pin inside the last GraphQL range the Ruby 2.7 OTel instrumentation accepts
+# (<= 2.0.17 or ~> 2.0.19). 2.3.x runs the query but produces no GraphQL spans.
+gem "graphql", "~> 2.0.19"
 
 # Datastores
 gem "pg", "~> 1.5.6"

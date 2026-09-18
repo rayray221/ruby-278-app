@@ -150,12 +150,10 @@ GEM
     ffi-compiler (1.4.2)
       ffi (>= 1.15.5)
       rake
-    fiber-storage (1.0.0)
     globalid (1.4.0)
       activesupport (>= 6.1)
-    graphql (2.3.23)
+    graphql (2.0.31)
       base64
-      fiber-storage
     http (5.1.1)
       addressable (~> 2.8)
       http-cookie (~> 1.0)
@@ -359,7 +357,7 @@ DEPENDENCIES
   excon (~> 0.109.0)
   faraday (~> 2.8.1)
   ffi (~> 1.16.3)
-  graphql (~> 2.3.0)
+  graphql (~> 2.0.19)
   http (~> 5.1.1)
   httpclient (~> 2.8.3)
   json (~> 2.7.0)
