@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-env
+  namespace: ruby-278
+data:
+  RAILS_ENV: "production"
+  RACK_ENV: "production"
+  RAILS_LOG_TO_STDOUT: "true"
+  RAILS_LOG_LEVEL: "info"
+  SECRET_KEY_BASE: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  DATABASE_URL: "postgres://otel:otel@postgres:5432/otel_production"
+  REDIS_URL: "redis://redis:6379/0"
+  MYSQL_HOST: "mysql"
+  MYSQL_PORT: "3306"
+  MYSQL_USER: "otel"
+  MYSQL_PASSWORD: "otel"
+  MYSQL_DATABASE: "otel"
+  MONGO_URL: "mongodb://mongo:27017/otel"
+  MEMCACHED_URL: "memcached:11211"
+  RABBITMQ_URL: "amqp://otel:otel@rabbitmq:5672"
+  KAFKA_BROKERS: "redpanda:9092"
+  ECHO_URL: "http://echo:80/"
+  SINATRA_URL: "http://sinatra:4567"
+  RAILS_URL: "http://rails:3000/exercise"
+  AWS_ENDPOINT: "http://localstack:4566"
+  AWS_REGION: "us-east-1"
+  AWS_ACCESS_KEY_ID: "test"
+  AWS_SECRET_ACCESS_KEY: "test"
+  S3_BUCKET: "otel-exercise"
+  LMDB_PATH: "/tmp/lmdb"
+  PORT: "3000"

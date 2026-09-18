@@ -1,0 +1,316 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rails
+  template:
+    metadata:
+      labels:
+        app: rails
+    spec:
+      containers:
+        - name: rails
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["rails-server"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 50m
+            limits:
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rails
+  namespace: ruby-278
+spec:
+  selector:
+    app: rails
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sinatra
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sinatra
+  template:
+    metadata:
+      labels:
+        app: sinatra
+    spec:
+      containers:
+        - name: sinatra
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "ruby", "sinatra/app.rb"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          env:
+            - name: PORT
+              value: "4567"
+          ports:
+            - containerPort: 4567
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 25m
+            limits:
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4567
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sinatra
+  namespace: ruby-278
+spec:
+  selector:
+    app: sinatra
+  ports:
+    - port: 4567
+      targetPort: 4567
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidekiq
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidekiq
+  template:
+    metadata:
+      labels:
+        app: sidekiq
+    spec:
+      containers:
+        - name: sidekiq
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
+            limits:
+              memory: 384Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resque
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resque
+  template:
+    metadata:
+      labels:
+        app: resque
+    spec:
+      containers:
+        - name: resque
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "ruby", "workers/resque_worker.rb"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
+            limits:
+              memory: 384Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delayed-job
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delayed-job
+  template:
+    metadata:
+      labels:
+        app: delayed-job
+    spec:
+      containers:
+        - name: delayed-job
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "ruby", "workers/delayed_job_worker.rb"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
+            limits:
+              memory: 384Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: que
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: que
+  template:
+    metadata:
+      labels:
+        app: que
+    spec:
+      containers:
+        - name: que
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "que", "./config/environment.rb"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
+            limits:
+              memory: 384Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bunny-consumer
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bunny-consumer
+  template:
+    metadata:
+      labels:
+        app: bunny-consumer
+    spec:
+      containers:
+        - name: bunny-consumer
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "ruby", "workers/bunny_consumer.rb"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
+            limits:
+              memory: 384Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ruby-kafka-consumer
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ruby-kafka-consumer
+  template:
+    metadata:
+      labels:
+        app: ruby-kafka-consumer
+    spec:
+      containers:
+        - name: ruby-kafka-consumer
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "ruby", "workers/ruby_kafka_consumer.rb"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
+            limits:
+              memory: 384Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: racecar
+  namespace: ruby-278
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: racecar
+  template:
+    metadata:
+      labels:
+        app: racecar
+    spec:
+      containers:
+        - name: racecar
+          image: ruby-278-app:latest
+          imagePullPolicy: IfNotPresent
+          args: ["bundle", "exec", "racecar", "--require", "config/environment.rb", "RdkafkaEventsConsumer"]
+          envFrom:
+            - configMapRef:
+                name: app-env
+          resources:
+            requests:
+              memory: 192Mi
+              cpu: 25m
+            limits:
+              memory: 384Mi

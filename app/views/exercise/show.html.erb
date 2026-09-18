@@ -1,0 +1,17 @@
+<h1>Library exercise</h1>
+<p>Widget: <%= @results[:serialized_widget].inspect %></p>
+<p>GraphQL: <%= @results[:graphql].inspect %></p>
+<h2>Steps</h2>
+<ul>
+  <% @results[:steps].each do |name, value| %>
+    <li><strong><%= name %></strong>: <%= value.inspect %></li>
+  <% end %>
+</ul>
+<% if @results[:errors].any? %>
+  <h2>Errors</h2>
+  <ul>
+    <% @results[:errors].each do |name, message| %>
+      <li><strong><%= name %></strong>: <%= message %></li>
+    <% end %>
+  </ul>
+<% end %>

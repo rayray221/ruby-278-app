@@ -1,0 +1,9 @@
+.git
+.gitignore
+k8s
+log/*
+tmp/*
+!tmp/.keep
+vendor/bundle
+*.md
+.DS_Store

@@ -1,0 +1,12 @@
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+.DS_Store
+*.swp
+/vendor/bundle
+.env
+/tmp/lmdb

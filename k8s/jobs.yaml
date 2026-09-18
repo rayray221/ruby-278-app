@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: otel-exercise
+  namespace: ruby-278
+spec:
+  suspend: true
+  schedule: "0 0 1 1 *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: exercise
+              image: ruby-278-app:latest
+              imagePullPolicy: IfNotPresent
+              args: ["bundle", "exec", "rake", "otel:exercise"]
+              envFrom:
+                - configMapRef:
+                    name: app-env
+              resources:
+                requests:
+                  memory: 192Mi
+                  cpu: 25m
+                limits:
+                  memory: 384Mi
