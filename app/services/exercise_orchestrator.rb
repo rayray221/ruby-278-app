@@ -181,10 +181,9 @@ class ExerciseOrchestrator
 
   def koala_facebook
     uri = URI(ENV.fetch("SINATRA_URL", "http://sinatra:4567"))
-    # Koala 3.5 ignores a per-call :server option and always uses graph_server.
-    Koala.configure do |config|
-      config.graph_server = "#{uri.host}:#{uri.port}"
-    end
+    # Koala 3.5 ignores a per-call :server option. Request#server reads
+    # Koala.config.graph_server (default graph.facebook.com).
+    Koala.config.graph_server = "#{uri.host}:#{uri.port}"
     api = Koala::Facebook::API.new("test-token")
     api.get_object("me", {}, use_ssl: false)
   end

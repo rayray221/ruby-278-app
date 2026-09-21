@@ -95,6 +95,13 @@ spec:
               command: ["mysqladmin", "ping", "-h", "127.0.0.1", "-uotel", "-potel"]
             initialDelaySeconds: 15
             periodSeconds: 5
+          volumeMounts:
+            - name: mysql-init
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-init
+          configMap:
+            name: mysql-init
 ---
 apiVersion: v1
 kind: Service

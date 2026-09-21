@@ -13,6 +13,9 @@ configMapGenerator:
   - name: echo-nginx
     files:
       - nginx-echo.conf
+  - name: mysql-init
+    files:
+      - mysql-init.sql
 images:
   - name: ruby-278-app
     newName: ruby-278-app
