@@ -1,0 +1,16 @@
+apiVersion: odigos.io/v1alpha1
+kind: InstrumentationRule
+metadata:
+  name: ruby-legacy-ruby278
+  namespace: odigos-system
+spec:
+  ruleName: "ruby 2.7 native instrumentation (ruby-278 only)"
+  scopes:
+    namespaces:
+      - ruby-278
+    languages:
+      - ruby
+  otelDistros:
+    otelDistroNames:
+      - "ruby-community-legacy"
+

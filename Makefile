@@ -21,7 +21,10 @@ load: build
 	@if command -v docker >/dev/null 2>&1; then \
 	  kind load docker-image $(IMAGE) --name $(KIND_CLUSTER); \
 	else \
-	  $(DOCKER) save $(IMAGE) | kind load image-archive /dev/stdin --name $(KIND_CLUSTER); \
+	  ARCHIVE=/tmp/$(TTL_NAME)_$$(date +%s).tar; \
+	  $(DOCKER) save -o $$ARCHIVE localhost/$(IMAGE); \
+	  kind load image-archive $$ARCHIVE; \
+	  rm $$ARCHIVE; \
 	fi
 
 push-ttl: build
